@@ -12,7 +12,7 @@ interface DataUser {
   email: string;
 }
 
-const profile = ({ email, firstName, lastName }: DataUser) => {
+const Profile = ({ email, firstName, lastName }: DataUser) => {
   const router = useRouter();
   const [sectionSelected, setSectionSelected] = useState("containers");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -148,4 +148,4 @@ const profile = ({ email, firstName, lastName }: DataUser) => {
   );
 };
 
-export default profile;
+export default Profile;
