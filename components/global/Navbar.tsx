@@ -34,7 +34,9 @@ const Navbar = () => {
           );
         })}
       </div>
-      <button className="btn-inline ">Get started</button>
+      <Link href="/login">
+        <button className="btn-inline">Get started</button>
+      </Link>
     </div>
   );
 };
