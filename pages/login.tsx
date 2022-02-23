@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import React from "react";
 
-const login = () => {
+const Login = () => {
   const router = useRouter();
   const [isLogin, setIsLogin] = React.useState(true);
 
@@ -238,4 +238,4 @@ const login = () => {
   );
 };
 
-export default login;
+export default Login;
