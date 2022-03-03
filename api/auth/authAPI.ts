@@ -68,7 +68,8 @@ export function getToken(): string {
 /**
  * @param callBack | can be the redirect function to push user to home page
  */
-export const signOut = (callBack?: () => void) => {
+export const signOut = async (callBack?: () => void) => {
+  await axios.delete(`http://localhost:8080/api/v1/tokens/${getToken()}`);
   removeTokens();
   if (callBack) callBack();
 };

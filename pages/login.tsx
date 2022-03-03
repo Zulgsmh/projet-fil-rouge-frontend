@@ -48,11 +48,12 @@ const Login = () => {
         email: entries.email,
         password: entries.password,
       })
-      .then((res) => {
+      .then(async (res) => {
         console.log(res);
         window.localStorage.setItem("authToken", res.data); //store token in local storage
         const decodedJwt: UserType = jwtDecode(res.data);
         setUserState(decodedJwt);
+        await axios.post(`http://localhost:8080/api/v1/tokens/${res.data}`);
         router.push("/profile");
       })
       .catch((error) => {

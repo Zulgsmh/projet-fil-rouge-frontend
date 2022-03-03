@@ -14,6 +14,10 @@ const Profile = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  React.useEffect(() => {
+    if (user === undefined) router.replace("/");
+  });
+
   const [user, setUser] = useRecoilState(userState);
   console.log("user logged in : ", user);
 
@@ -24,10 +28,11 @@ const Profile = () => {
   /**
    *  //Remove jwt token and move user state to undefined then redirect
    */
-  const logout = () => {
-    signOut();
-    setUser(undefined);
-    router.replace("/");
+  const logout = async () => {
+    signOut().then(() => {
+      setUser(undefined);
+      router.replace("/");
+    });
   };
 
   //fetch containers instances of the user
