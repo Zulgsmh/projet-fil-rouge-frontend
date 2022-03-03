@@ -12,6 +12,7 @@ import {
 import { GrConnect } from "react-icons/gr";
 import { SiAnsible } from "react-icons/si";
 import { FiSettings } from "react-icons/fi";
+import Link from "next/link";
 
 const AboutSection = () => {
   return (
@@ -80,8 +81,11 @@ const AboutSection = () => {
           </div>
         </div>
       </div>
-
-      <button className="btn-inline w-1/3 self-center mb-5">Get started</button>
+      <Link href="/login">
+        <button className="btn-inline w-1/3 self-center mb-5">
+          Get started
+        </button>
+      </Link>
     </div>
   );
 };

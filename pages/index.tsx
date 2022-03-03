@@ -1,8 +1,10 @@
 import jwtDecode from "jwt-decode";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { useEffect } from "react";
+import { useSetRecoilState } from "recoil";
+import { getToken } from "../api/auth/authAPI";
+import { checkIfTokenExistsAndValid } from "../api/token/tokenAPI";
 import Container from "../components/global/Container";
 import Footer from "../components/global/Footer";
 import Navbar from "../components/global/Navbar";
@@ -10,23 +12,20 @@ import AboutSection from "../components/HomePage/AboutSection";
 import ContactSection from "../components/HomePage/ContactSection";
 import HeroSection from "../components/HomePage/HeroSection";
 import TeamSection from "../components/HomePage/TeamSection";
+import { userState } from "../store/store";
 
 const Home: NextPage = () => {
   const router = useRouter();
-
-  const [isLogged, setIsLogged] = useState(false);
-
-  const checkUserLoggedIn = () => {
-    if (window.localStorage.getItem("authToken") !== undefined) {
-      //decode jwt then redirect user
-    }
-    setIsLogged(true);
-  };
+  const setUser = useSetRecoilState(userState);
 
   useEffect(() => {
-    checkUserLoggedIn();
-    console.log("is logged : ", isLogged);
-    if (isLogged) router.push("/profile");
+    const token = getToken();
+    if (token === "") return;
+    const tokenExistsAndValid = checkIfTokenExistsAndValid(token);
+    if (tokenExistsAndValid) {
+      setUser(jwtDecode(token));
+      router.push("/profile");
+    }
   }, []);
 
   return (
@@ -39,14 +38,6 @@ const Home: NextPage = () => {
         <ContactSection />
       </Container>
       <Footer />
-      <ToastContainer
-        position="bottom-center"
-        autoClose={2000}
-        hideProgressBar={true}
-        closeOnClick
-        pauseOnHover={false}
-        theme="dark"
-      />
     </div>
   );
 };

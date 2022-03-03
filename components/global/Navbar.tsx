@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 const listLink = [
   {

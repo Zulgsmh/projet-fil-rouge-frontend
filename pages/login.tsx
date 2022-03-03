@@ -1,15 +1,65 @@
+import axios from "axios";
+import jwtDecode from "jwt-decode";
 import { useRouter } from "next/router";
 import React from "react";
+import { toast } from "react-toastify";
+import { useSetRecoilState } from "recoil";
+import { RegisterType, createUser } from "../api/auth/authAPI";
+import { userState, UserType } from "../store/store";
 
 const Login = () => {
+  const setUserState = useSetRecoilState(userState);
   const router = useRouter();
   const [isLogin, setIsLogin] = React.useState(true);
 
-  const register = () => {};
+  const [entries, setEntries] = React.useState<RegisterType>({
+    email: "",
+    password: "",
+    firstname: "",
+    lastname: "",
+  });
 
-  const login = () => {
-    router.push("/profile");
+  const handleChangeEntries = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEntries({ ...entries, [name]: value });
   };
+
+  const register = (e: any) => {
+    e.preventDefault();
+    for (let entry in entries) {
+      if (entry === "") {
+        toast.warning("All field are required");
+        return;
+      }
+    }
+    createUser(entries);
+    setIsLogin(true); // change page to login
+    setEntries({ ...entries, firstname: "", lastname: "" });
+  };
+
+  const login = async (e: any) => {
+    e.preventDefault();
+    if (entries.email === "" || entries.password === "") {
+      toast.warning("All field are required");
+      return;
+    }
+    await axios
+      .post("http://localhost:8080/api/v1/auth/login", {
+        email: entries.email,
+        password: entries.password,
+      })
+      .then((res) => {
+        console.log(res);
+        window.localStorage.setItem("authToken", res.data); //store token in local storage
+        const decodedJwt: UserType = jwtDecode(res.data);
+        setUserState(decodedJwt);
+        router.push("/profile");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <div className="min-h-screen flex">
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
@@ -71,6 +121,8 @@ const Login = () => {
                     </label>
                     <div className="mt-1">
                       <input
+                        value={entries.email}
+                        onChange={handleChangeEntries}
                         id="email"
                         name="email"
                         type="email"
@@ -90,6 +142,8 @@ const Login = () => {
                     </label>
                     <div className="mt-1">
                       <input
+                        value={entries.password}
+                        onChange={handleChangeEntries}
                         id="password"
                         name="password"
                         type="password"
@@ -147,6 +201,8 @@ const Login = () => {
                     </label>
                     <div className="mt-1">
                       <input
+                        value={entries.email}
+                        onChange={handleChangeEntries}
                         id="email"
                         name="email"
                         type="email"
@@ -166,6 +222,8 @@ const Login = () => {
                     </label>
                     <div className="mt-1">
                       <input
+                        value={entries.password}
+                        onChange={handleChangeEntries}
                         id="password"
                         name="password"
                         type="password"
@@ -185,6 +243,8 @@ const Login = () => {
                     </label>
                     <div className="mt-1">
                       <input
+                        value={entries.firstname}
+                        onChange={handleChangeEntries}
                         id="firstname"
                         name="firstname"
                         type="text"
@@ -203,6 +263,8 @@ const Login = () => {
                     </label>
                     <div className="mt-1">
                       <input
+                        value={entries.lastname}
+                        onChange={handleChangeEntries}
                         id="lastname"
                         name="lastname"
                         type="text"

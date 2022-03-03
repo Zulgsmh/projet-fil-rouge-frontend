@@ -5,24 +5,30 @@ import { FaDocker, FaUser } from "react-icons/fa";
 import Container from "../components/global/Container";
 import { UserContainerInstance } from "../components/UserPage/UserContainerInstance";
 import { useRouter } from "next/router";
+import { signOut } from "../api/auth/authAPI";
+import { useRecoilState } from "recoil";
+import { userState } from "../store/store";
+import { toast } from "react-toastify";
 
-interface DataUser {
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
-const Profile = ({ email, firstName, lastName }: DataUser) => {
+const Profile = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const [user, setUser] = useRecoilState(userState);
+  console.log("user logged in : ", user);
+
   const [sectionSelected, setSectionSelected] = useState("containers");
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  /**
+   *  //Remove jwt token and move user state to undefined then redirect
+   */
   const logout = () => {
-    //Remove jwt token then redirect
+    signOut();
+    setUser(undefined);
     router.replace("/");
   };
-
-  const queryClient = useQueryClient();
 
   //fetch containers instances of the user
   const useContainers = (email: string) => {
@@ -56,9 +62,12 @@ const Profile = ({ email, firstName, lastName }: DataUser) => {
 
   useEffect(() => {}, []);
 
-  //connect to the container
-  const connect = () => {
-    console.log("New connection...");
+  /**
+   * @param id of the container
+   * @description connect to the container
+   */
+  const connect = (id: string) => {
+    toast.info("Connection to the container...");
   };
 
   return (
@@ -99,6 +108,15 @@ const Profile = ({ email, firstName, lastName }: DataUser) => {
               {sectionSelected === "containers" && (
                 <>
                   <div className="flex w-full items-center justify-between mb-10">
+                    <div className="flex flex-col">
+                      <label className="text-lg">
+                        {user?.firstName + " " + user?.lastName}
+                      </label>
+                      <label className="text-sm text-gray-400">
+                        {user?.email}
+                      </label>
+                    </div>
+
                     <h2 className="text-xl">My Containers</h2>
                     <button className="btn-inline">New container</button>
                   </div>
