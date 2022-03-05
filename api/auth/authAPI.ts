@@ -1,28 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// ---- check authentication
-/*
-export const checkAuthentication = async (
-  token: string,
-  callbackSignout?: () => void,
-) => {
-  //check if token is provided
-  await checkIfTokenExists(token);
-  //check if already valid
-
-  //if valid decode jwt and setUp store with user data
-
-  //else if not valid
-  //remove token, clear user data and redirect
-  if (callbackSignout) {
-    signOut(callbackSignout);
-  } else {
-    signOut();
-  }
-};
-*/
-
 // ---- Sign in
 
 type TokenReponse = string;

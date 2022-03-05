@@ -9,6 +9,7 @@ import { signOut } from "../api/auth/authAPI";
 import { useRecoilState } from "recoil";
 import { userState } from "../store/store";
 import { toast } from "react-toastify";
+import { ModalCreateContainer } from "../components/UserPage/ModalCreateContainer";
 
 const Profile = () => {
   const router = useRouter();
@@ -18,6 +19,8 @@ const Profile = () => {
     if (user === undefined) router.replace("/");
   });
 
+  const [isOpenModalCreateContainer, setIsOpenModalCreateContainer] =
+    React.useState(false);
   const [user, setUser] = useRecoilState(userState);
   console.log("user logged in : ", user);
 
@@ -77,6 +80,14 @@ const Profile = () => {
 
   return (
     <>
+      <ModalCreateContainer
+        open={isOpenModalCreateContainer}
+        setOpen={() =>
+          isOpenModalCreateContainer
+            ? setIsOpenModalCreateContainer(false)
+            : setIsOpenModalCreateContainer(true)
+        }
+      />
       <div className="h-screen flex">
         {/* Sidebar */}
         <div className="w-1/4 bg-indigo-600 h-full text-white p-5">
@@ -123,7 +134,12 @@ const Profile = () => {
                     </div>
 
                     <h2 className="text-xl">My Containers</h2>
-                    <button className="btn-inline">New container</button>
+                    <button
+                      className="btn-inline"
+                      onClick={() => setIsOpenModalCreateContainer(true)}
+                    >
+                      New container
+                    </button>
                   </div>
                   {/* all user container */}
                   <div className="flex flex-col w-full gap-5">
