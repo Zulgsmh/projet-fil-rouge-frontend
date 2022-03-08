@@ -4,8 +4,8 @@ import { FaDocker, FaUser } from "react-icons/fa";
 import Container from "../components/global/Container";
 import { UserContainerInstance } from "../components/UserPage/UserContainerInstance";
 import { useRouter } from "next/router";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { messagesCreateContainerState, userState } from "../store/store";
+import { useRecoilState } from "recoil";
+import { userState } from "../store/store";
 import { toast } from "react-toastify";
 import { ModalCreateContainer } from "../components/UserPage/ModalCreateContainer";
 import { fetchUserContainers } from "../api/containers/containerAPI";
@@ -71,6 +71,7 @@ const Profile = () => {
             : setIsOpenModalCreateContainer(true)
         }
       />
+
       <div className="h-screen flex">
         {/* Sidebar */}
         <div className="w-1/4 bg-indigo-600 h-full text-white p-5">

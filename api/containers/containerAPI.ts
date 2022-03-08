@@ -42,7 +42,7 @@ export const deleteContainer = async (userId: string, containerId: string) => {
   if (userId) {
     return await axios
       .delete(
-        `http://localhost:8080/api/v1/containers&userId=${userId}&containerId=${containerId}`,
+        `http://localhost:8080/api/v1/containers?userId=${userId}&containerId=${containerId}`,
         {
           headers: { Authorization: "Bearer " + getToken() },
         },
