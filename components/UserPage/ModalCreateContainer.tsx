@@ -48,6 +48,8 @@ export const ModalCreateContainer = ({
     },
     {
       onSuccess: () => {
+        //close modal
+        setOpen();
         //refetch containers data
         queryClient.invalidateQueries(["containers"]);
       },
@@ -76,6 +78,17 @@ export const ModalCreateContainer = ({
    * @description change every time message state is updated
    */
   React.useEffect(() => {
+    if (messages.length === 0)
+      setMessages([
+        ...messages,
+        {
+          id: 1,
+          message: `Hi ${user?.firstName} what is your dream container ?`,
+          sendAt: new Date(),
+          sender: "bot",
+        },
+      ]);
+
     if (
       messages.length > 0 &&
       messages[messages.length - 1].sender === "client"
@@ -115,22 +128,6 @@ export const ModalCreateContainer = ({
       setMessages([]);
     }
   }, [messages]);
-
-  /**
-   * @description effect launch only on first render of the component (to send first message)
-   */
-  React.useEffect(() => {
-    if (messages.length === 0)
-      setMessages([
-        ...messages,
-        {
-          id: 1,
-          message: `Hi ${user?.firstName} what is your dream container ?`,
-          sendAt: new Date(),
-          sender: "bot",
-        },
-      ]);
-  }, []);
 
   return (
     <Transition.Root show={open} as={Fragment}>
