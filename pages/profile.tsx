@@ -1,32 +1,47 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { FaDocker, FaUser } from "react-icons/fa";
 import Container from "../components/global/Container";
 import { UserContainerInstance } from "../components/UserPage/UserContainerInstance";
 import { useRouter } from "next/router";
-import { signOut } from "../api/auth/authAPI";
-import { useRecoilState } from "recoil";
-import { userState } from "../store/store";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { messagesCreateContainerState, userState } from "../store/store";
 import { toast } from "react-toastify";
 import { ModalCreateContainer } from "../components/UserPage/ModalCreateContainer";
+import { fetchUserContainers } from "../api/containers/containerAPI";
+import { signOut } from "../api/auth/authAPI";
 
 const Profile = () => {
   const router = useRouter();
-  const queryClient = useQueryClient();
-
   React.useEffect(() => {
     if (user === undefined) router.replace("/");
   });
 
   const [isOpenModalCreateContainer, setIsOpenModalCreateContainer] =
     React.useState(false);
+
   const [user, setUser] = useRecoilState(userState);
-  console.log("user logged in : ", user);
 
   const [sectionSelected, setSectionSelected] = useState("containers");
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const {
+    isLoading: containersIsLoading,
+    data: containers,
+    refetch: refetchContainers,
+    isFetching,
+  } = useQuery(
+    ["containers"],
+    async () => {
+      const { data } = await fetchUserContainers(user!.id);
+      console.log(data);
+      return data;
+    },
+    { keepPreviousData: true, staleTime: 120_000 }, //keep data in memory for 2 min before re fetching
+  );
+
+  useEffect(() => {
+    refetchContainers();
+  }, []);
 
   /**
    *  //Remove jwt token and move user state to undefined then redirect
@@ -37,38 +52,6 @@ const Profile = () => {
       router.replace("/");
     });
   };
-
-  //fetch containers instances of the user
-  const useContainers = (email: string) => {
-    const { isLoading, data, refetch, isFetching } = useQuery(
-      ["containers"],
-      async () => {
-        const res = await axios.get("");
-        return res.data;
-      },
-      { keepPreviousData: false, staleTime: 120_000 }, //keep data in memory for 2 min before re fetching
-    );
-    return {
-      data,
-      isLoading,
-      refetch,
-      isFetching,
-    };
-  };
-
-  const { mutate: createContainer } = useMutation(
-    async () => {
-      await axios.post(""); //pass some data);
-    },
-    {
-      onSuccess: () => {
-        //refetch containers data
-        queryClient.invalidateQueries(["containers"]);
-      },
-    },
-  );
-
-  useEffect(() => {}, []);
 
   /**
    * @param id of the container
@@ -143,39 +126,31 @@ const Profile = () => {
                   </div>
                   {/* all user container */}
                   <div className="flex flex-col w-full gap-5">
-                    <UserContainerInstance
-                      id="GEZIRGNEZKR"
-                      name="Python course env"
-                      available={true}
-                      baseImage="centOS"
-                      connect={connect}
-                      ram="8GB"
-                      stack={["Python", "Jupyter", "CentOS", "Java"]}
-                      storage="128Go"
-                      key="1"
-                    />
-                    <UserContainerInstance
-                      id="GEZIRGNEZKR"
-                      name="Java env"
-                      available={false}
-                      baseImage="ubuntu"
-                      connect={connect}
-                      ram="8GB"
-                      stack={["Java", "openJDK 1.8", "Spring"]}
-                      storage="128Go"
-                      key="2"
-                    />
-                    <UserContainerInstance
-                      id="GEZIRGNEZKR"
-                      name="Kubernetes"
-                      available={false}
-                      baseImage="windows"
-                      connect={connect}
-                      ram="16GB"
-                      stack={["Kube", "Python", "Ansible", "Docker"]}
-                      storage="56Go"
-                      key="3"
-                    />
+                    {containersIsLoading && (
+                      <label>Fetching your containers...</label>
+                    )}
+                    {containers ? (
+                      //@ts-ignore
+                      containers.containers !== undefined &&
+                      //@ts-ignore
+                      containers.containers.map((container: any) => {
+                        return (
+                          <UserContainerInstance
+                            id={container.id}
+                            name={container.name}
+                            available={true}
+                            baseImage="ubuntu"
+                            connect={connect}
+                            ram="8GB"
+                            stack={container.servicesInstalled}
+                            storage="500GB"
+                            key={container.id}
+                          />
+                        );
+                      })
+                    ) : (
+                      <div>No containers found</div>
+                    )}
                   </div>
                 </>
               )}

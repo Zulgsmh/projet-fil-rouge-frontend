@@ -1,4 +1,5 @@
-import { atom, selector } from "recoil";
+import { atom } from "recoil";
+import { CreateContainerType } from "../api/containers/containerAPI";
 
 export type UserType =
   | {
@@ -38,11 +39,11 @@ export const messagesCreateContainerState = atom<MessageType[]>({
   default: [],
 });
 
-/*
-export const getLastMessageId = selector({
-  key: "getLastMessageId",
-  get: ({ get }) => {
-    return get(messagesCreateContainerState).length;
+export const createContainerState = atom<CreateContainerType>({
+  key: "createContainerState",
+  default: {
+    name: "",
+    userId: "",
+    servicesInstalled: [],
   },
 });
-*/

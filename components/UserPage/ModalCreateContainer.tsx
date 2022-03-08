@@ -1,9 +1,16 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { useState } from "react";
+import { useEffect } from "react";
 import { Fragment } from "react";
 import { GiCardboardBoxClosed } from "react-icons/gi";
+import { useMutation, useQueryClient } from "react-query";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { messagesCreateContainerState, userState } from "../../store/store";
+import { createContainer } from "../../api/containers/containerAPI";
+import {
+  createContainerState,
+  messagesCreateContainerState,
+  userState,
+} from "../../store/store";
 import { RowMessage } from "./RowMessage";
 
 interface IModalCreateContainer {
@@ -15,12 +22,37 @@ export const ModalCreateContainer = ({
   setOpen,
   open,
 }: IModalCreateContainer) => {
+  const queryClient = useQueryClient();
   const refLastMessage = React.useRef(null);
+
   const [input, setInput] = useState("");
+
   const [messages, setMessages] = useRecoilState(messagesCreateContainerState);
+
   const user = useRecoilValue(userState);
 
-  console.log(messages);
+  const [newContainer, setNewContainer] = useRecoilState(createContainerState);
+
+  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  //create container
+  const { mutate: createNewContainer } = useMutation(
+    async () => {
+      return await createContainer({
+        name: newContainer.name,
+        servicesInstalled: newContainer.servicesInstalled,
+        userId: newContainer.userId,
+      });
+    },
+    {
+      onSuccess: () => {
+        //refetch containers data
+        queryClient.invalidateQueries(["containers"]);
+      },
+    },
+  );
 
   const sendMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -40,6 +72,9 @@ export const ModalCreateContainer = ({
     }
   };
 
+  /**
+   * @description change every time message state is updated
+   */
   React.useEffect(() => {
     if (
       messages.length > 0 &&
@@ -59,10 +94,31 @@ export const ModalCreateContainer = ({
       ]);
     }
     //scroll to last message
-    //@ts-ignore
-    refLastMessage.current.scrollIntoView();
+    if (refLastMessage.current !== null) {
+      //@ts-ignore
+      refLastMessage.current.scrollIntoView();
+    }
+
+    if (messages.filter((message) => message.sender === "bot").length === 3) {
+      //create container
+      //---test---
+      setNewContainer({
+        ...newContainer,
+        name: "testFront",
+        servicesInstalled: ["Hadoop", "Spark", "Python3"],
+        userId: user!.id,
+      });
+      //---------
+      createNewContainer();
+
+      //remove all messages from the chatbox
+      setMessages([]);
+    }
   }, [messages]);
 
+  /**
+   * @description effect launch only on first render of the component (to send first message)
+   */
   React.useEffect(() => {
     if (messages.length === 0)
       setMessages([
@@ -146,7 +202,7 @@ export const ModalCreateContainer = ({
                     placeholder="Please type your message..."
                     type="text"
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={handleChangeInput}
                   />
                   <button className="h-10 btn-inline" onClick={sendMessage}>
                     Send

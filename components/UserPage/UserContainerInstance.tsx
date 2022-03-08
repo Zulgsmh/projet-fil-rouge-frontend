@@ -1,7 +1,7 @@
 import React from "react";
 
 import { FaCentos, FaWindows, FaUbuntu } from "react-icons/fa";
-
+import { CgClose } from "react-icons/cg";
 interface IUserContainerInstance {
   id: string;
   name: string;
@@ -25,6 +25,7 @@ export const UserContainerInstance = ({
 }: IUserContainerInstance) => {
   return (
     <div className=" relative w-full h-24 flex items-center justify-between shadow-sm rounded-lg  px-5">
+      <CgClose className="absolute left-3 top-2 cursor-pointer hover:scale-150 transform transition-all" />
       <div className="flex items-center">
         {baseImage === "centOS" ? (
           <FaCentos className="w-7 h-7" />
