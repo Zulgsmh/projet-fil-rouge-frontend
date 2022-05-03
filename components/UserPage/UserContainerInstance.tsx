@@ -73,6 +73,9 @@ export const UserContainerInstance = ({
                 return <>{idx === stack.length - 1 ? i : i + ", "}</>;
               })}
             </label>
+            <label className="text-sm text-gray-300">
+              {ram + " | " + storage}
+            </label>
           </div>
         </div>
 
