@@ -1,16 +1,16 @@
 import { Dialog, Transition } from "@headlessui/react";
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React from "react";
 import { Fragment } from "react";
 import { GiCardboardBoxClosed } from "react-icons/gi";
 import { useMutation, useQueryClient } from "react-query";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { createContainer } from "../../api/containers/containerAPI";
 import {
-  createContainerState,
   messagesCreateContainerState,
+  stackSelectedState,
   userState,
 } from "../../store/store";
+import { ALL_STACK } from "../../utils/stack";
 import { RowMessage } from "./RowMessage";
 
 interface IModalCreateContainer {
@@ -25,25 +25,18 @@ export const ModalCreateContainer = ({
   const queryClient = useQueryClient();
   const refLastMessage = React.useRef(null);
 
-  const [input, setInput] = useState("");
-
   const [messages, setMessages] = useRecoilState(messagesCreateContainerState);
-
   const user = useRecoilValue(userState);
 
-  const [newContainer, setNewContainer] = useRecoilState(createContainerState);
-
-  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
-  };
+  const [stackSelected, setStackSelected] = useRecoilState(stackSelectedState);
 
   //create container
   const { mutate: createNewContainer } = useMutation(
     async () => {
       return await createContainer({
-        name: newContainer.name,
-        servicesInstalled: newContainer.servicesInstalled,
-        userId: newContainer.userId,
+        name: "newContainer.name",
+        servicesInstalled: stackSelected,
+        userId: user!.id,
       });
     },
     {
@@ -56,22 +49,8 @@ export const ModalCreateContainer = ({
     },
   );
 
-  const sendMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    //add message to the store
-    if (input !== "" && messages[messages.length - 1].sender === "bot") {
-      setMessages([
-        ...messages,
-        {
-          id: messages.length + 1,
-          message: input,
-          sendAt: new Date(),
-          sender: "client",
-        },
-      ]);
-      //clear input
-      setInput("");
-    }
+  const removeItemAtIndex = (arr: string[], index: number) => {
+    return [...arr.slice(0, index), ...arr.slice(index + 1)];
   };
 
   /**
@@ -83,49 +62,17 @@ export const ModalCreateContainer = ({
         ...messages,
         {
           id: 1,
-          message: `Hi ${user?.firstName} what is your dream container ?`,
+          message: `Hi ${user?.firstName} what do you want in your container ?`,
           sendAt: new Date(),
           sender: "bot",
+          stack: ALL_STACK,
         },
       ]);
 
-    if (
-      messages.length > 0 &&
-      messages[messages.length - 1].sender === "client"
-    ) {
-      //check message send to api and perform ml algorithm to send response
-
-      //for test
-      setMessages([
-        ...messages,
-        {
-          id: messages.length + 1,
-          message: `Auto response`,
-          sendAt: new Date(),
-          sender: "bot",
-        },
-      ]);
-    }
     //scroll to last message
     if (refLastMessage.current !== null) {
       //@ts-ignore
       refLastMessage.current.scrollIntoView();
-    }
-
-    if (messages.filter((message) => message.sender === "bot").length === 3) {
-      //create container
-      //---test---
-      setNewContainer({
-        ...newContainer,
-        name: "testFront",
-        servicesInstalled: ["Hadoop", "Spark", "Python3"],
-        userId: user!.id,
-      });
-      //---------
-      createNewContainer();
-
-      //remove all messages from the chatbox
-      setMessages([]);
     }
   }, [messages]);
 
@@ -184,6 +131,7 @@ export const ModalCreateContainer = ({
                           message={message.message}
                           sendAt={message.sendAt}
                           sender={message.sender}
+                          stack={message.stack}
                         />
                       );
                     })}
@@ -193,16 +141,28 @@ export const ModalCreateContainer = ({
               </div>
               <div className="mt-5 sm:mt-6">
                 <div className="flex items-center gap-4 mb-3">
-                  <input
-                    className="h-10 w-full p-2  focus:ring-inset focus:outline-none cursor-text rounded-lg border-blue-500 border-2"
-                    name="inputMessage"
-                    placeholder="Please type your message..."
-                    type="text"
-                    value={input}
-                    onChange={handleChangeInput}
-                  />
-                  <button className="h-10 btn-inline" onClick={sendMessage}>
-                    Send
+                  <div className="h-10 w-full p-2 items-center gap-2 flex focus:ring-inset focus:outline-none rounded-lg border-blue-500 border-2">
+                    {stackSelected.map((s, idx) => (
+                      <span
+                        className="bg-blue-500 cursor-pointer text-white px-2 py-1 rounded-sm"
+                        key={idx}
+                        onClick={() =>
+                          setStackSelected((prev) =>
+                            removeItemAtIndex(prev, idx),
+                          )
+                        }
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    className="h-10 btn-inline"
+                    onClick={() => {
+                      if (stackSelected.length > 0) createNewContainer();
+                    }}
+                  >
+                    Create
                   </button>
                 </div>
                 <button

@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RecoilRoot } from "recoil";
+import { TerminalContextProvider } from "react-terminal";
 
 const queryClient = new QueryClient(); //Global store for React-query
 
@@ -14,7 +15,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
-        <Component {...pageProps} />
+        <TerminalContextProvider>
+          <Component {...pageProps} />
+        </TerminalContextProvider>
       </RecoilRoot>
       <ReactQueryDevtools initialIsOpen={false} />
       <ToastContainer

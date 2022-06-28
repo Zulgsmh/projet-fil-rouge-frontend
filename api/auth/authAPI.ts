@@ -38,6 +38,9 @@ function removeTokens() {
   window.localStorage.clear();
 }
 
+/**
+ * @description Get token from local storage with authToken key
+ */
 export function getToken(): string {
   const token = window.localStorage.getItem("authToken");
   return token ? token : "";

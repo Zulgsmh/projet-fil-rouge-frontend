@@ -2,7 +2,13 @@ import React from "react";
 import { MessageType } from "../../store/store";
 import { BubbleMessage } from "./BubbleMessage";
 
-export const RowMessage = ({ sender, id, message, sendAt }: MessageType) => {
+export const RowMessage = ({
+  sender,
+  id,
+  message,
+  sendAt,
+  stack,
+}: MessageType) => {
   return (
     <>
       {sender === "bot" ? (
@@ -11,6 +17,7 @@ export const RowMessage = ({ sender, id, message, sendAt }: MessageType) => {
           message={message}
           sendAt={sendAt}
           sender={sender}
+          stack={stack}
         />
       ) : (
         <div className="flex">
@@ -20,6 +27,7 @@ export const RowMessage = ({ sender, id, message, sendAt }: MessageType) => {
             message={message}
             sendAt={sendAt}
             sender={sender}
+            stack={stack}
           />
         </div>
       )}

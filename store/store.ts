@@ -32,7 +32,15 @@ export type MessageType = {
   message: string;
   sender: "client" | "bot";
   sendAt: Date;
+  stack?: string[];
 };
+
+export type StackSelectedType = string[];
+
+export const stackSelectedState = atom<StackSelectedType>({
+  key: "stackSelectedState",
+  default: [],
+});
 
 export const messagesCreateContainerState = atom<MessageType[]>({
   key: "messagesCreateContainerState",
@@ -45,5 +53,33 @@ export const createContainerState = atom<CreateContainerType>({
     name: "",
     userId: "",
     servicesInstalled: [],
+  },
+});
+
+//----- Terminal
+
+export type TerminalType = {
+  isOpen: boolean;
+};
+
+export const terminalState = atom<TerminalType>({
+  key: "terminalState",
+  default: {
+    isOpen: false,
+  },
+});
+
+//----- Modal Details
+
+export type ContainerDetailsType = {
+  isOpen: boolean;
+  idContainer: string | undefined;
+};
+
+export const containerDetailsState = atom<ContainerDetailsType>({
+  key: "containerDetailsState",
+  default: {
+    isOpen: false,
+    idContainer: undefined,
   },
 });
